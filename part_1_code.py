@@ -10,5 +10,5 @@ macbeth_url = 'https://www.gutenberg.org/files/2264/2264.txt'
 response = urllib.request.urlopen(macbeth_url)
 data = response.read()  
 text = data.decode('utf-8')
-print(text) # for testing
+print(text) 
 
