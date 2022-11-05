@@ -63,48 +63,58 @@ def most_common(hist, range):
     for word, freq in a[0:range]:
         print(word, '\t', freq)
 
-def most_common_words(hist,range):
+
+def stopwords():
+    stopwords = process_file('data/stopwords.txt', False)
+    stopwords = list(stopwords.keys())
+    
+    return stopwords
+
+def most_common_exclude_stopwords(hist,range):
     """
-    Makes a list of words freq pairs in descending order of frequency.
-    hist: map from word to frequency
+    Makes a list of words freq pairs in descending order of frequency excluding stopwords in a given range
     returns: list of (frequency, word) pairs
     """
-    a = sorted(hist.items(), key=lambda item:item[1],reverse=True)
-    a_words = []
-    for word, freq in a[0:range]:
-        a_words.append(word)
-    return a_words
 
-def most_common_exclusive(hist1,range1, hist2, range2):
-    """
-    Makes a list which returns the most frequent unique words from one histogram that is not in the other histogram in a given range of frequency. 
-    """
-    a = most_common_words(hist1,range1)
-    b = most_common_words(hist2,range2)
+    s = stopwords()
+    a = []
+    for word, freq in hist.items():
+        if word in s:
+            continue
+        a.append((freq,word))
 
-    c_words = []
-    for word in a:
+    a.sort(reverse=True)
+
+    return a[0:range]
+
+def most_common_exclusive(hist1, hist2, range):
+    """
+    Makes a list which returns the unique words that excludes the stopwords in a given range.
+    """
+
+    s = stopwords()
+
+    a = []
+    for word1, freq1 in hist1.items():
+        if word1 in s:
+            continue
+        a.append((freq1,word1))
+    a.sort(reverse=True)
+
+    b = []
+    for word2, freq2 in hist2.items():
+        if word2 in s:
+            continue
+        b.append((word2))
+
+
+    c = []
+    for freq,word in a:
         if word not in b:
-            c_words.append(word)
-    return c_words
-
-
-def most_common_both(hist1,range1,hist2,range2):
-    """
-    Makes a list which returns the most frequent unique words from the two histograms in a given range of frequency.
-    """
-    a = most_common_words(hist1,range1)
-    b = most_common_words(hist2,range2)
-
-    c_words = []
-    for i in a:
-        if i not in b:
-            c_words.append(i)
-    for y in b:
-        if y not in a:
-            c_words.append(y)
-    return c_words
-
+            c.append((freq,word))
+    
+    c.sort(reverse=True)
+    return c[0:range]
 
 
 def sentiment_hist(hist):
@@ -132,26 +142,21 @@ def main():
     print('Total number of words in Hamlet:', total_words(hist_hamlet),'Total number of words in Macbeth:',total_words(hist_macbeth))
     print('Number of different words in Hamlet:', different_words(hist_hamlet),'Number of different words in Macbeth',different_words(hist_macbeth))
 
-    print('The 10 most common words in hamlet are:')
-    most_common(hist_hamlet, 10)
-    print('The 10 most common words in macbeth are:')
-    most_common(hist_macbeth, 10)
+    print('The 20 most common words in hamlet are:')
+    most_common(hist_hamlet, 20)
+    print('The 20 most common words in macbeth are:')
+    most_common(hist_macbeth, 20)
     
-    print('The top 10 most common words and its frequency in Hamlet are:')
-    print(most_common_words(hist_hamlet,10))
-    print('The top 10 most common words and its frequency in Macbeth are:')
-    print(most_common_words(hist_macbeth,10))
+    print('The top 20 most common words and its frequency in Hamlet excluding stopwords are:')
+    print(most_common_exclude_stopwords(hist_hamlet,20))
+    print('The top 20 most common words and its frequency in Macbeth excluding stopwords are:')
+    print(most_common_exclude_stopwords(hist_macbeth,20))
 
     print('The most common words in Hamlet that are not in Macbeth are:')
-    print(most_common_exclusive(hist_hamlet,20,hist_macbeth,20))
+    print(most_common_exclusive(hist_hamlet,hist_macbeth,20))
     print('The most common words in Macbeth that are not in Hamlet are:')
-    print(most_common_exclusive(hist_macbeth,20,hist_hamlet,20))
+    print(most_common_exclusive(hist_macbeth,hist_hamlet,20))
 
-
-    print('The most common words from the two books that do not overlap looking at the 30 most frequient word:')
-    print(most_common_both(hist_hamlet,30,hist_macbeth,30))
-    print('The most common words from the two books that do not overlap looking at the 40 most frequient word:')
-    print(most_common_both(hist_hamlet,40,hist_macbeth,40))
 
 
     print('This is the sentiment analysis for the Hamlet text:')
